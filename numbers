@@ -1,0 +1,75 @@
+#! /usr/bin/env python
+
+import sys
+import numpy
+from optparse import OptionParser
+
+# older versions of numpy didn't have percentile, it was in scipy instead.
+try:
+    percentile = numpy.percentile
+except AttributeError:
+    try:
+        import scipy.stats
+        percentile = scipy.stats.scoreatpercentile
+    except (ImportError, AttributeError):
+        assert "numpy must be newer than 1.7 or scipy must be installed as well."
+
+
+def get_summary(a):
+    d = {
+        'mean'   : numpy.mean(a),
+        'median' : numpy.median(a),
+        'std'    : numpy.std(a),
+        '1p'     : percentile(a, 1),
+        '1q'     : percentile(a, 25),
+        '3q'     : percentile(a, 75),
+        '99p'    : percentile(a, 99),
+    }
+
+    return d
+        
+def main():
+    op = OptionParser()
+    op.add_option("-H", "--histogram", dest="histogram",
+                  action="store_true", default=False,
+                  help="Show a histogram via matplotlib")
+    op.add_option("-I", "--ipython", dest="ipython",
+                  action="store_true", default=False,
+                  help="Drop into an ipython shell")
+
+    opts, args = op.parse_args()
+
+    # import optional libraries
+    if opts.histogram:
+        import math
+        import matplotlib.pyplot as plt
+    if opts.ipython:
+        import IPython
+
+    numbers = []
+    if not args:
+        fin = sys.stdin
+    else:
+        fin = open(args[0], 'rU')
+    line = fin.readline()
+    while line:
+        numbers.append(float(line.strip()))
+        try:
+            line = fin.readline()
+        except EOFError:
+            line = None
+
+    n_numbers = len(numbers)
+    num_array = numpy.array(numbers)
+    num_summary = get_summary(num_array)
+    out = [ "%s: %f" % (k,num_summary[k]) for k in num_summary]
+    out.sort()
+    print('\n'.join(out))
+    if opts.histogram:
+        magnitude = math.log(n_numbers, 2)
+        n, bins, patches = plt.hist(num_array, magnitude)
+        plt.show()
+    if opts.ipython:
+        IPython.embed()
+
+main()

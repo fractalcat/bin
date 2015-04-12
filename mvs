@@ -16,11 +16,11 @@ fi
 ALPHA=$1
 OMEGA=$2
 
-if [[ -e $OMEGA ]]; then
-	echo "${OMEGA} already exists; bailing out."
-	exit 1
+# If we're given an existing target directory, create a link inside it.
+if [[ -d $OMEGA ]]; then
+	OMEGA="${OMEGA}/$(basename $ALPHA)"
 fi
 
 cp -an $ALPHA $OMEGA
 rm -r $ALPHA
-ln -sfT $OMEGA $ALPHA
+ln -s $OMEGA $ALPHA

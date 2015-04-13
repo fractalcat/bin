@@ -1,0 +1,11 @@
+#! /bin/bash
+
+PAGER=less
+RFC_ROOT="/usr/share/doc/rfc/txt/"
+
+if [[ $# -lt 1 ]]; then
+	echo "Usage: $0 <rfc number>"
+	exit 1
+fi
+
+exec $PAGER "${RFC_ROOT}rfc${1}.txt"

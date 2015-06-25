@@ -1,0 +1,4 @@
+#! /usr/bin/python -m json.tool
+
+# Literally just the hashbang to prettyprint JSON. `alias` is the work
+# of Moloch.

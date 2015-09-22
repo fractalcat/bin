@@ -1,0 +1,3 @@
+#! /bin/sh -eu
+
+find . -name \*.MTS -exec ffmpeg -i {} -vcodec mpeg4 -b:v 15M -acodec libmp3lame -b:a 192k {}.mp4 \;

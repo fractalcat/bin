@@ -15,6 +15,6 @@ do
         fst=0
     fi
 
-    $cmd
+    time $cmd
     ret=$?
 done

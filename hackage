@@ -1,0 +1,3 @@
+#! /bin/sh -eu
+
+firefox https://hackage.haskell.org/package/$1

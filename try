@@ -1,0 +1,20 @@
+#! /bin/sh -u
+
+cmd="$@"
+ret=1
+fst=1
+delay=${DELAY:-1}
+
+while [ ! $ret -eq 0 ]
+do
+    if [ ! $fst -eq 1 ]
+    then
+        echo "Command failed. Retrying in $delay seconds."
+        sleep $delay
+    else
+        fst=0
+    fi
+
+    $cmd
+    ret=$?
+done

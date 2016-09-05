@@ -1,0 +1,87 @@
+#! /usr/bin/env python
+
+# Copyright (c) 2014, Anchor Systems. Used under the terms of the 3-clause BSD
+# license.
+#
+# https://github.com/WhereSoftwareGoesToDie/ts2dt
+
+# This is a quick hack to grab timestamps out of logs and turn them
+# into something my brain can parse. 
+#
+# (Persons who are comfortable parsing deltas into dates in their heads
+# should do that instead, it's much more awesome.)
+
+import re
+import datetime
+import sys
+
+DEBUG = False
+
+timestamp_rxp = {
+    # Seconds from the epoch as a 32-bit signed integer, 
+    # decimal-encoded, with or without a fractional component 
+    # (interpreted the intuitive way, by Python's int function).
+    # 
+    # This fails on dates outside a narrow range around 2013. I'm lazy
+    # and general accurate timestamp matching in arbitrary data is 
+    # impossible. 
+    #
+    # Failure cases (incomplete):
+    #
+    #   - before 2002
+    #   - after 2032
+    "default" : re.compile(r".*(^|\W)(1\d{9})(\.\d+)?\W.*$", re.I),
+}
+
+def debug(msg):
+    if DEBUG:
+        print("DEBUG: %s" % msg)
+
+def parse_integral(s):
+    return int(s)
+
+def parse_fractional(s):
+    assert s.startswith(".")
+    string_rep = "0.%d" % int(s[1:])
+    return float(string_rep)
+
+def extract(line):
+    rxp = timestamp_rxp["default"]
+    match = rxp.search(line)
+    integral_component = None
+    fractional_component = 0.0
+
+    if not match:
+        return "", ""
+    integral_match = match.group(2)
+    debug("integral: %s" % integral_match)
+    sys.stdout.flush()
+    original_timestamp = integral_match
+    assert integral_match is not None
+    integral_component = parse_integral(integral_match)
+    debug("int: %d" % integral_component)
+
+    fractional_match = match.group(3)
+    if fractional_match:
+        debug("fractional: %s" % fractional_match)
+        fractional_component = parse_fractional(fractional_match)
+        debug("fraction: %f" % fractional_component)
+        original_timestamp += fractional_match
+        debug("original timestamp: %s" % original_timestamp)
+    dt = datetime.datetime.fromtimestamp(integral_component + fractional_component)
+    return original_timestamp, dt
+
+def extract_and_substitute(line):
+    original, replacement = extract(line)
+    return line.replace(original, str(replacement))
+
+def main():
+    lines_read = 0
+    for line in sys.stdin:
+        lines_read += 1
+        line = line.strip()
+        out = extract_and_substitute(line)
+        print(out)
+
+if __name__ == "__main__":
+    main()

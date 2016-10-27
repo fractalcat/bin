@@ -101,9 +101,7 @@ def extract_and_substitute(line):
     return line.replace(original, str(replacement))
 
 def main():
-    lines_read = 0
     for line in sys.stdin:
-        lines_read += 1
         line = line.strip()
         out = extract_and_substitute(line)
         print(out)

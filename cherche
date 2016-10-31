@@ -1,0 +1,12 @@
+#! /bin/sh -eu
+
+usage() {
+    echo "$0 <pattern>"
+    exit 1
+}
+
+[ $# -eq 1 ] || usage
+
+pat="$1"
+
+find . -iname "*${pat}*"

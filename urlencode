@@ -1,0 +1,25 @@
+#! /usr/bin/env python2
+
+import sys
+import urllib
+
+exe = sys.argv[0]
+munge = None
+
+if exe.endswith("urlencode"):
+    munge = urllib.quote_plus
+elif exe.endswith("urldecode"):
+    munge = urllib.unquote_plus
+else:
+    sys.stderr.write(
+        "Must be invoked as `urlencode` or `urldecode` to determine mode, " +
+        "not `%s`.\n" % exe
+        )
+    sys.exit(1)
+
+if len(sys.argv) != 2:
+    sys.stderr.write("Usage: %s '<data>'\n")
+    sys.exit(2)
+
+data = sys.argv[1]
+sys.stdout.write(munge(data) + '\n')

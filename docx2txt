@@ -1,0 +1,8 @@
+#! /bin/sh -eu
+
+DIR=$(mktemp -d)
+OUT="$DIR/$(basename $1 .docx).txt"
+soffice --headless --convert-to txt --outdir $DIR $1
+cat $OUT
+rm $OUT
+rmdir $DIR
